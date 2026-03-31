@@ -1,0 +1,151 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "dns": {
+    "servers": [
+      {
+        "type": "https",
+        "tag": "doh-remote",
+        "server": "1.1.1.1",
+        "server_port": 443,
+        "path": "/dns-query",
+        "tls": {
+          "enabled": true,
+          "server_name": "cloudflare-dns.com"
+        },
+        "detour": "proxy"
+      },
+      {
+        "type": "local",
+        "tag": "dns-local"
+      }
+    ],
+    "rules": [
+      {
+        "domain_suffix": [
+          "ru",
+          "su",
+          "xn--p1ai"
+        ],
+        "action": "route",
+        "server": "dns-local",
+        "strategy": "ipv4_only"
+      },
+      {
+        "domain": [
+          "ya.ru",
+          "yandex.ru",
+          "dzen.ru",
+          "vk.com",
+          "mail.ru",
+          "gosuslugi.ru",
+          "ozon.ru",
+          "wildberries.ru",
+          "avito.ru"
+        ],
+        "action": "route",
+        "server": "dns-local",
+        "strategy": "ipv4_only"
+      },
+      {
+        "action": "route",
+        "server": "doh-remote",
+        "strategy": "ipv4_only"
+      }
+    ],
+    "final": "doh-remote"
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "address": [
+        "172.19.0.1/30"
+      ],
+      "auto_route": true,
+      "strict_route": true,
+      "mtu": 1400
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "YOUR_SERVER_IP",
+      "server_port": 443,
+      "uuid": "YOUR_UUID",
+      "packet_encoding": "xudp",
+      "tls": {
+        "enabled": true,
+        "server_name": "www.google.com",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        },
+        "reality": {
+          "enabled": true,
+          "public_key": "YOUR_REALITY_PUBLIC_KEY",
+          "short_id": "YOUR_SHORT_ID"
+        }
+      }
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    }
+  ],
+  "route": {
+    "auto_detect_interface": true,
+    "default_domain_resolver": "dns-local",
+    "final": "proxy",
+    "rules": [
+      {
+        "action": "sniff"
+      },
+      {
+        "type": "logical",
+        "mode": "or",
+        "rules": [
+          {
+            "protocol": "dns"
+          },
+          {
+            "port": 53
+          }
+        ],
+        "action": "hijack-dns"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "direct"
+      },
+      {
+        "domain_suffix": [
+          "ru",
+          "su",
+          "xn--p1ai"
+        ],
+        "outbound": "direct"
+      },
+      {
+        "domain": [
+          "ya.ru",
+          "yandex.ru",
+          "dzen.ru",
+          "vk.com",
+          "mail.ru",
+          "gosuslugi.ru",
+          "ozon.ru",
+          "wildberries.ru",
+          "avito.ru"
+        ],
+        "outbound": "direct"
+      }
+    ]
+  }
+}

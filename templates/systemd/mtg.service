@@ -1,0 +1,12 @@
+[Unit]
+Description=MTProto Proxy (mtg)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/mtg run /etc/mtg.toml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
