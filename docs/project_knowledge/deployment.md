@@ -121,13 +121,29 @@ Use this when you want:
 
 Input format:
 
-- full `sing-box` JSON
+- full local `sing-box` client JSON
+- not an arbitrary JSON snippet
+- not just a `vless://` URI wrapped in JSON
 
 Where to paste:
 
 - create a local profile
 - open profile content
 - paste the JSON
+
+What that JSON should usually contain:
+
+- `dns`
+- `inbounds`
+- `outbounds`
+- `route`
+
+Typical operator intent:
+
+- `tun` inbound for system traffic
+- direct routing for selected domains
+- proxy routing for everything else
+- `vless` outbound with `Reality`
 
 ### Hiddify Next
 
@@ -168,5 +184,5 @@ Where to paste:
 
 ## Operational Rule
 
-- give `SFM` the generated JSON config
+- give `SFM` a proper `sing-box` config with real routing and DNS sections
 - give `Hiddify Next`, `v2rayN`, and `v2rayNG` the `vless://` link

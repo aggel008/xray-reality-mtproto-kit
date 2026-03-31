@@ -145,7 +145,13 @@ Typical flow:
 Important:
 
 - `SFM` does not primarily want a raw `vless://` URI
-- it is better to give it the full JSON config generated from this repo
+- do not give it an arbitrary JSON blob
+- give it a real local `sing-box` config with:
+  - `dns` rules
+  - `tun` inbound
+  - `route` rules
+  - `vless` outbound
+- the templates and generator in this repo are meant for exactly that
 
 ### Hiddify Next
 
@@ -176,7 +182,12 @@ Typical flow:
 
 ### Practical Rule
 
-- If the client asks for JSON, give it the generated `sing-box` config
+- If the client asks for JSON, give it a proper `sing-box` client config, not a random JSON object
+- That config should normally include:
+  - `dns`
+  - `inbounds`
+  - `outbounds`
+  - `route`
 - If the client asks for a link, give it the `vless://` URI
 
 ## Repo Layout
