@@ -100,3 +100,73 @@ python3 scripts/generate_singbox_config.py \
   --sni www.google.com \
   --pretty
 ```
+
+## Client App Mapping
+
+Use the right format for the right client.
+
+### SFM
+
+Correct name:
+
+- `SFM`
+- `sing-box for Apple`
+
+Use this when you want:
+
+- a local JSON config
+- split tunneling
+- direct rules for selected domains
+- full `sing-box` control
+
+Input format:
+
+- full `sing-box` JSON
+
+Where to paste:
+
+- create a local profile
+- open profile content
+- paste the JSON
+
+### Hiddify Next
+
+Input format:
+
+- `vless://` link
+- or subscription URL
+
+Where to paste:
+
+- import from clipboard
+- import from link
+- or add profile manually
+
+### v2rayN
+
+Input format:
+
+- `vless://` link
+
+Where to paste:
+
+- import from clipboard
+- import URL
+- or scan QR if you generated one elsewhere
+
+### v2rayNG
+
+Input format:
+
+- `vless://` link
+
+Where to paste:
+
+- import from clipboard
+- manual import
+- scan QR
+
+## Operational Rule
+
+- give `SFM` the generated JSON config
+- give `Hiddify Next`, `v2rayN`, and `v2rayNG` the `vless://` link

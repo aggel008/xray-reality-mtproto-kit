@@ -108,8 +108,76 @@ python3 scripts/generate_singbox_config.py \
   --public-key YOUR_REALITY_PUBLIC_KEY \
   --short-id YOUR_SHORT_ID \
   --sni www.google.com \
-  --label my-main-reality
+  --pretty
 ```
+
+## Client Apps And Import Methods
+
+### Correct Client Names
+
+- `SFM` = `sing-box for Apple`
+- `Hiddify Next`
+- `v2rayN`
+- `v2rayNG`
+
+### Which Format Each Client Wants
+
+- `SFM`: full `sing-box` JSON config
+- `Hiddify Next`: usually `vless://` link or subscription URL
+- `v2rayN`: `vless://` link
+- `v2rayNG`: `vless://` link
+
+### SFM
+
+Use `SFM` when you want a local `sing-box` config with:
+
+- split tunneling
+- custom DNS rules
+- direct routing for selected domains
+
+Typical flow:
+
+1. Create a local profile in `SFM`.
+2. Open the profile content editor.
+3. Paste the generated JSON config.
+4. Save and enable the profile.
+
+Important:
+
+- `SFM` does not primarily want a raw `vless://` URI
+- it is better to give it the full JSON config generated from this repo
+
+### Hiddify Next
+
+Typical flow:
+
+1. Open `Hiddify Next`.
+2. Choose import from clipboard, import from link, or add profile manually.
+3. Paste the `vless://` link.
+4. Save and connect.
+
+### v2rayN
+
+Typical flow:
+
+1. Open `v2rayN`.
+2. Use import from clipboard or import URL.
+3. Paste the `vless://` link.
+4. Select the profile and connect.
+
+### v2rayNG
+
+Typical flow:
+
+1. Open `v2rayNG`.
+2. Use import from clipboard, scan QR, or manual import.
+3. Paste the `vless://` link.
+4. Select the profile and connect.
+
+### Practical Rule
+
+- If the client asks for JSON, give it the generated `sing-box` config
+- If the client asks for a link, give it the `vless://` URI
 
 ## Repo Layout
 
