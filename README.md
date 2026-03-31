@@ -38,6 +38,50 @@ This repo is meant to be publishable. Fill in your own secrets and values.
 - `mtg`
 - `Sing-box / SFM`
 
+## Server Size
+
+For this stack, the server does not need to be large.
+
+### Minimum
+
+- `1 vCPU`
+- `2 GB RAM`
+- `10 GB SSD`
+- `Debian 12`
+- `1 public IPv4`
+
+Good for:
+
+- personal use
+- family use
+- a few occasional users
+- mostly Telegram + normal browsing
+
+### Recommended
+
+- `2 vCPU`
+- `2-4 GB RAM`
+- `10-20 GB SSD`
+- `Debian 12`
+- `1 public IPv4`
+
+Good for:
+
+- safer headroom
+- small private groups
+- staged migration from an older VPN server
+- operators who do not want to think about CPU pressure
+
+### Real Example
+
+The real working migration server used during development of this repo was:
+
+- `e2-small`
+- `Debian 12`
+- `10 GB disk`
+
+That size was enough for a small private deployment.
+
 ## Typical Ports
 
 - `443` main `VLESS TCP + Reality`

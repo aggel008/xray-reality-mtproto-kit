@@ -16,6 +16,42 @@ Bring up a small private access server on a Debian VPS with:
 - root or sudo access
 - open firewall ports
 
+## Server Sizing
+
+### Minimum
+
+- `1 vCPU`
+- `2 GB RAM`
+- `10 GB SSD`
+- `1 public IPv4`
+
+Use this when:
+
+- the server is for personal use
+- user count is small
+- traffic is light or occasional
+- the main heavy case is Telegram and ordinary browsing
+
+### Recommended
+
+- `2 vCPU`
+- `2-4 GB RAM`
+- `10-20 GB SSD`
+- `1 public IPv4`
+
+Use this when:
+
+- you want more CPU headroom
+- you are migrating from an old server and want less risk
+- several people may use it in parallel
+- you prefer operational margin over saving a few dollars
+
+### Practical Note
+
+For a small private setup, an `e2-small` class VM is usually enough.
+
+If you want the safer default and do not want to think much about resizing later, choose an `e2-medium` class VM.
+
 ## Recommended Open Ports
 
 - `80`
