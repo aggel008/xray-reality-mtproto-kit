@@ -1,0 +1,18 @@
+{
+  order forward_proxy before file_server
+}
+
+:443, naive.example.com {
+  tls you@example.com
+
+  forward_proxy {
+    basic_auth YOUR_NAIVE_USERNAME YOUR_NAIVE_PASSWORD
+    hide_ip
+    hide_via
+    probe_resistance
+  }
+
+  file_server {
+    root /var/www/html
+  }
+}

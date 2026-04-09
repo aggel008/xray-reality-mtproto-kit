@@ -1,14 +1,15 @@
-# Xray Reality + MTProto Kit
+# Xray Reality + NaiveProxy + MTProto Kit
 
-Deploy `Xray Reality` and `MTProto` on a VPS with `x-ui`, reusable `Sing-box / SFM` client configs, and operator-friendly runbooks.
+Deploy `Xray Reality`, `NaiveProxy`, and `MTProto` with reusable `Sing-box / SFM` client configs and operator-friendly runbooks.
 
 ## Why This Exists
 
 This repo is for people who want a small, understandable access stack:
 
 - `VLESS + Reality` as the main path
+- `NaiveProxy` as the cross-stack DPI-resistant backup
 - `MTProto` as the Telegram-native fallback
-- `x-ui` as the operator panel
+- `x-ui` as the operator panel for the `Xray` side
 - `Sing-box / SFM` JSON configs for macOS
 
 It is designed for small private deployments, staged migrations, and personal or family use.
@@ -16,9 +17,10 @@ It is designed for small private deployments, staged migrations, and personal or
 ## What Is Included
 
 - deploy guidance for a Debian VPS
-- `Sing-box / SFM` config template
+- `Sing-box / SFM` config templates for `Reality` and `Naive`
+- example `Caddyfile` for `NaiveProxy`
 - `mtg` systemd unit and example config
-- a small config generator for client JSON
+- a small config generator for `Reality` or `Naive` client JSON
 - durable operating docs in `docs/project_knowledge/`
 
 ## What Is Not Included
@@ -35,6 +37,7 @@ This repo is meant to be publishable. Fill in your own secrets and values.
 
 - `x-ui`
 - `Xray`
+- `Caddy + forwardproxy@naive`
 - `mtg`
 - `Sing-box / SFM`
 
@@ -84,30 +87,63 @@ That size was enough for a small private deployment.
 
 ## Typical Ports
 
+### Xray Stack
+
 - `443` main `VLESS TCP + Reality`
 - `2053` fallback `VLESS TCP + Reality`
 - `2083` fallback `VLESS XHTTP + Reality`
+
+These are useful, but they are still the same `Xray + Reality` family.
+
+### Naive Stack
+
+- `80` ACME and HTTP challenge path
+- `443` `NaiveProxy` via `Caddy forwardproxy`
+
+Recommended:
+
+- run `NaiveProxy` on a separate VPS or separate public IP
+- do not describe it as "just another Reality port"
+
+### Other Services
+
 - `8443` `MTProto`
 - `29750` x-ui panel
 - `2096` x-ui sub server
 
 ## Quick Start
 
-1. Create a Debian VM.
+1. Create the `Xray + MTProto` Debian VM.
 2. Open firewall ports:
    - `80,443,2053,2083,2087,2096,29750,8443`
 3. Install `x-ui`.
 4. Create Reality inbounds in `x-ui`.
 5. Install `mtg`.
-6. Generate client JSON with:
+6. If you also want `NaiveProxy`, bring it up on a separate VPS or public IP.
+7. Generate client JSON.
+
+Reality example:
 
 ```bash
 python3 scripts/generate_singbox_config.py \
+  --mode reality \
   --server 1.2.3.4 \
   --uuid YOUR_UUID \
   --public-key YOUR_REALITY_PUBLIC_KEY \
   --short-id YOUR_SHORT_ID \
   --sni www.google.com \
+  --pretty
+```
+
+Naive example:
+
+```bash
+python3 scripts/generate_singbox_config.py \
+  --mode naive \
+  --server naive.example.com \
+  --username YOUR_NAIVE_USERNAME \
+  --password YOUR_NAIVE_PASSWORD \
+  --sni naive.example.com \
   --pretty
 ```
 
@@ -122,7 +158,7 @@ python3 scripts/generate_singbox_config.py \
 
 ### Which Format Each Client Wants
 
-- `SFM`: full `sing-box` JSON config
+- `SFM`: full `sing-box` JSON config for `Reality`, `Naive`, or grouped outbounds
 - `Hiddify Next`: usually `vless://` link or subscription URL
 - `v2rayN`: `vless://` link
 - `v2rayNG`: `vless://` link
@@ -134,6 +170,7 @@ Use `SFM` when you want a local `sing-box` config with:
 - split tunneling
 - custom DNS rules
 - direct routing for selected domains
+- a full `tun` profile for desktop apps, not just browsers
 
 Typical flow:
 
@@ -150,7 +187,7 @@ Important:
   - `dns` rules
   - `tun` inbound
   - `route` rules
-  - `vless` outbound
+  - `vless` or `naive` outbound
 - the templates and generator in this repo are meant for exactly that
 
 ### Hiddify Next
@@ -188,6 +225,7 @@ Typical flow:
   - `inbounds`
   - `outbounds`
   - `route`
+- `NaiveProxy` is a different outbound type and a different server stack, not just another `Reality` port
 - If the client asks for a link, give it the `vless://` URI
 
 ## Repo Layout
@@ -198,12 +236,14 @@ Typical flow:
 - `docs/project_knowledge/deployment.md`
 - `scripts/generate_singbox_config.py`
 - `templates/sfm/reality-main.template.json`
+- `templates/sfm/naive-backup.template.json`
+- `templates/caddy/naive.Caddyfile.example`
 - `templates/mtg/mtg.toml.example`
 - `templates/systemd/mtg.service`
 
 ## Suggested GitHub Description
 
-`Deploy Xray Reality + MTProto on a VPS with x-ui, reusable Sing-box/SFM configs, and operator runbooks.`
+`Deploy Xray Reality, NaiveProxy, and MTProto with reusable Sing-box/SFM configs and operator runbooks.`
 
 ## License
 

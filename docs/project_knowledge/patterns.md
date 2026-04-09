@@ -25,6 +25,17 @@ Recommended order:
 4. migrate users gradually
 5. shut down the old server later
 
+## Cross-Stack Fallback Beats Port-Only Fallback
+
+Adding more `Reality` ports is useful, but it is still the same protocol family.
+
+If you want a stronger backup path against detection or traffic shaping, prefer:
+
+- `VLESS + Reality` as the main path
+- `NaiveProxy` as the backup path
+
+This is especially useful when regional filtering starts to affect `Xray` handshakes or payload flow unevenly.
+
 ## Separate Per-User Profiles
 
 Separate profiles are useful when the operator wants:

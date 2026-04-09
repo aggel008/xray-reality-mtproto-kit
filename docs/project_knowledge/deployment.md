@@ -2,10 +2,11 @@
 
 ## Goal
 
-Bring up a small private access server on a Debian VPS with:
+Bring up a small private access stack on Debian VPS infrastructure with:
 
 - `x-ui`
 - `Xray Reality`
+- optional `Caddy + forwardproxy@naive`
 - `mtg`
 - optional `Sing-box / SFM` client configs
 
@@ -54,6 +55,8 @@ If you want the safer default and do not want to think much about resizing later
 
 ## Recommended Open Ports
 
+### Xray + MTProto VPS
+
 - `80`
 - `443`
 - `2053`
@@ -63,6 +66,11 @@ If you want the safer default and do not want to think much about resizing later
 - `29750`
 - `8443`
 
+### NaiveProxy VPS or Public IP
+
+- `80`
+- `443`
+
 ## Basic Order
 
 1. Update the server and install base tools.
@@ -70,8 +78,9 @@ If you want the safer default and do not want to think much about resizing later
 3. Set the panel credentials.
 4. Create `Reality` inbounds.
 5. Install `mtg`.
-6. Generate user configs.
-7. Test from a real client before migration.
+6. If needed, bring up `NaiveProxy` on a separate VPS or public IP.
+7. Generate user configs.
+8. Test from a real client before migration.
 
 ## x-ui Notes
 
@@ -85,19 +94,41 @@ If you want the safer default and do not want to think much about resizing later
 - use fake TLS `ee` secrets
 - publish only the final Telegram link, not private server internals
 
+## NaiveProxy Notes
+
+- treat `NaiveProxy` as a separate transport stack, not as "one more `Reality` port"
+- recommended server stack: `Caddy + github.com/klzgrad/forwardproxy@naive`
+- recommended topology: separate VPS or at least separate public IP
+- keep the DNS record `DNS only` if using Cloudflare
+- keep `:443` first in the `Caddyfile`
+- use `basic_auth`, `hide_ip`, `hide_via`, and `probe_resistance`
+
 ## Client Configs
 
 Use `scripts/generate_singbox_config.py` to build a reusable `Sing-box / SFM` profile.
 
-Example:
+Reality example:
 
 ```bash
 python3 scripts/generate_singbox_config.py \
+  --mode reality \
   --server YOUR_SERVER_IP \
   --uuid YOUR_UUID \
   --public-key YOUR_REALITY_PUBLIC_KEY \
   --short-id YOUR_SHORT_ID \
   --sni www.google.com \
+  --pretty
+```
+
+Naive example:
+
+```bash
+python3 scripts/generate_singbox_config.py \
+  --mode naive \
+  --server naive.example.com \
+  --username YOUR_NAIVE_USERNAME \
+  --password YOUR_NAIVE_PASSWORD \
+  --sni naive.example.com \
   --pretty
 ```
 
@@ -144,6 +175,7 @@ Typical operator intent:
 - direct routing for selected domains
 - proxy routing for everything else
 - `vless` outbound with `Reality`
+- `naive` outbound for the backup path
 
 ### Hiddify Next
 
@@ -186,3 +218,4 @@ Where to paste:
 
 - give `SFM` a proper `sing-box` config with real routing and DNS sections
 - give `Hiddify Next`, `v2rayN`, and `v2rayNG` the `vless://` link
+- describe `NaiveProxy` as a separate backup stack in your runbooks
