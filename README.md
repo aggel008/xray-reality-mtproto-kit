@@ -17,7 +17,7 @@ It is designed for small private deployments, staged migrations, and personal or
 ## What Is Included
 
 - deploy guidance for a Debian VPS
-- `Sing-box / SFM` config templates for `Reality` and `Naive`
+- full-tunnel `Sing-box / SFM` config templates for `Reality` and `Naive`
 - example `Caddyfile` for `NaiveProxy`
 - `mtg` systemd unit and example config
 - a small config generator for `Reality` or `Naive` client JSON
@@ -108,19 +108,21 @@ Recommended:
 ### Other Services
 
 - `8443` `MTProto`
-- `29750` x-ui panel
-- `2096` x-ui sub server
+- `2096` x-ui sub server, only if you explicitly use it
+- `29750` x-ui panel, keep it operator-only behind SSH tunnel or a source IP allowlist
 
 ## Quick Start
 
 1. Create the `Xray + MTProto` Debian VM.
 2. Open firewall ports:
-   - `80,443,2053,2083,2087,2096,29750,8443`
+   - `80,443,2053,2083,2087,8443`
 3. Install `x-ui`.
 4. Create Reality inbounds in `x-ui`.
 5. Install `mtg`.
 6. If you also want `NaiveProxy`, bring it up on a separate VPS or public IP.
 7. Generate client JSON.
+
+Keep the `x-ui` admin panel off the public internet by default. Use an SSH tunnel, a VPN, or a strict source IP allowlist for operator access.
 
 Reality example:
 
@@ -147,6 +149,22 @@ python3 scripts/generate_singbox_config.py \
   --pretty
 ```
 
+The generated config is full-tunnel by default.
+
+Optional split-tunnel example:
+
+```bash
+python3 scripts/generate_singbox_config.py \
+  --mode reality \
+  --server 1.2.3.4 \
+  --uuid YOUR_UUID \
+  --public-key YOUR_REALITY_PUBLIC_KEY \
+  --short-id YOUR_SHORT_ID \
+  --direct-suffixes ru,su,xn--p1ai \
+  --direct-domains ya.ru,yandex.ru,dzen.ru,vk.com,mail.ru \
+  --pretty
+```
+
 ## Client Apps And Import Methods
 
 ### Correct Client Names
@@ -167,9 +185,9 @@ python3 scripts/generate_singbox_config.py \
 
 Use `SFM` when you want a local `sing-box` config with:
 
-- split tunneling
+- full tunnel by default
 - custom DNS rules
-- direct routing for selected domains
+- optional direct routing for selected domains
 - a full `tun` profile for desktop apps, not just browsers
 
 Typical flow:
@@ -183,6 +201,8 @@ Important:
 
 - `SFM` does not primarily want a raw `vless://` URI
 - do not give it an arbitrary JSON blob
+- the templates and generator in this repo default to full tunnel
+- split-tunnel rules are opt-in via `--direct-suffixes` and `--direct-domains`
 - give it a real local `sing-box` config with:
   - `dns` rules
   - `tun` inbound
@@ -225,6 +245,7 @@ Typical flow:
   - `inbounds`
   - `outbounds`
   - `route`
+- The templates and generator default to full tunnel unless you opt into direct rules
 - `NaiveProxy` is a different outbound type and a different server stack, not just another `Reality` port
 - If the client asks for a link, give it the `vless://` URI
 
@@ -238,6 +259,7 @@ Typical flow:
 - `templates/sfm/reality-main.template.json`
 - `templates/sfm/naive-backup.template.json`
 - `templates/caddy/naive.Caddyfile.example`
+- `tests/test_generate_singbox_config.py`
 - `templates/mtg/mtg.toml.example`
 - `templates/systemd/mtg.service`
 

@@ -3,20 +3,85 @@ import argparse
 import json
 
 
-DEFAULT_DIRECT_DOMAINS = [
-    "ya.ru",
-    "yandex.ru",
-    "dzen.ru",
-    "vk.com",
-    "mail.ru",
-    "gosuslugi.ru",
-    "ozon.ru",
-    "wildberries.ru",
-    "avito.ru",
-]
+DEFAULT_REALITY_SNI = "www.google.com"
 
 
-def build_common_config(proxy_outbound: dict, direct_domains: list[str]) -> dict:
+def split_csv(raw: str) -> list[str]:
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def unique_list(values: list[str]) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        result.append(value)
+    return result
+
+
+def build_common_config(
+    proxy_outbound: dict, direct_suffixes: list[str], direct_domains: list[str]
+) -> dict:
+    dns_rules = []
+    if direct_suffixes:
+        dns_rules.append(
+            {
+                "domain_suffix": direct_suffixes,
+                "action": "route",
+                "server": "dns-local",
+                "strategy": "ipv4_only",
+            }
+        )
+    if direct_domains:
+        dns_rules.append(
+            {
+                "domain": direct_domains,
+                "action": "route",
+                "server": "dns-local",
+                "strategy": "ipv4_only",
+            }
+        )
+    dns_rules.append(
+        {
+            "action": "route",
+            "server": "doh-remote",
+            "strategy": "ipv4_only",
+        }
+    )
+
+    route_rules = [
+        {"action": "sniff"},
+        {
+            "type": "logical",
+            "mode": "or",
+            "rules": [
+                {"protocol": "dns"},
+                {"port": 53},
+            ],
+            "action": "hijack-dns",
+        },
+        {
+            "ip_is_private": True,
+            "outbound": "direct",
+        },
+    ]
+    if direct_suffixes:
+        route_rules.append(
+            {
+                "domain_suffix": direct_suffixes,
+                "outbound": "direct",
+            }
+        )
+    if direct_domains:
+        route_rules.append(
+            {
+                "domain": direct_domains,
+                "outbound": "direct",
+            }
+        )
+
     return {
         "log": {"level": "info"},
         "dns": {
@@ -38,25 +103,7 @@ def build_common_config(proxy_outbound: dict, direct_domains: list[str]) -> dict
                     "tag": "dns-local",
                 },
             ],
-            "rules": [
-                {
-                    "domain_suffix": ["ru", "su", "xn--p1ai"],
-                    "action": "route",
-                    "server": "dns-local",
-                    "strategy": "ipv4_only",
-                },
-                {
-                    "domain": direct_domains,
-                    "action": "route",
-                    "server": "dns-local",
-                    "strategy": "ipv4_only",
-                },
-                {
-                    "action": "route",
-                    "server": "doh-remote",
-                    "strategy": "ipv4_only",
-                },
-            ],
+            "rules": dns_rules,
             "final": "doh-remote",
         },
         "inbounds": [
@@ -84,30 +131,7 @@ def build_common_config(proxy_outbound: dict, direct_domains: list[str]) -> dict
             "auto_detect_interface": True,
             "default_domain_resolver": "dns-local",
             "final": "proxy",
-            "rules": [
-                {"action": "sniff"},
-                {
-                    "type": "logical",
-                    "mode": "or",
-                    "rules": [
-                        {"protocol": "dns"},
-                        {"port": 53},
-                    ],
-                    "action": "hijack-dns",
-                },
-                {
-                    "ip_is_private": True,
-                    "outbound": "direct",
-                },
-                {
-                    "domain_suffix": ["ru", "su", "xn--p1ai"],
-                    "outbound": "direct",
-                },
-                {
-                    "domain": direct_domains,
-                    "outbound": "direct",
-                },
-            ],
+            "rules": route_rules,
         },
     }
 
@@ -156,15 +180,21 @@ def build_naive_outbound(args: argparse.Namespace) -> dict:
     return outbound
 
 
+def apply_mode_defaults(args: argparse.Namespace) -> None:
+    if args.sni:
+        return
+    args.sni = DEFAULT_REALITY_SNI if args.mode == "reality" else args.server
+
+
 def build_config(args: argparse.Namespace) -> dict:
-    extra_domains = [d.strip() for d in args.direct_domains.split(",") if d.strip()]
-    direct_domains = DEFAULT_DIRECT_DOMAINS + extra_domains
+    direct_suffixes = unique_list(split_csv(args.direct_suffixes))
+    direct_domains = unique_list(split_csv(args.direct_domains))
     proxy_outbound = (
         build_reality_outbound(args)
         if args.mode == "reality"
         else build_naive_outbound(args)
     )
-    return build_common_config(proxy_outbound, direct_domains)
+    return build_common_config(proxy_outbound, direct_suffixes, direct_domains)
 
 
 def validate_args(args: argparse.Namespace) -> None:
@@ -205,8 +235,7 @@ def main() -> None:
     parser.add_argument("--password", help="NaiveProxy password")
     parser.add_argument(
         "--sni",
-        default="www.google.com",
-        help="Reality SNI or Naive TLS server_name",
+        help="TLS server_name. Defaults to www.google.com for Reality, or --server for Naive.",
     )
     parser.add_argument("--port", type=int, default=443, help="Server port")
     parser.add_argument(
@@ -228,7 +257,12 @@ def main() -> None:
     parser.add_argument(
         "--direct-domains",
         default="",
-        help="Comma-separated domains that should bypass the proxy",
+        help="Optional comma-separated domains that should bypass the proxy",
+    )
+    parser.add_argument(
+        "--direct-suffixes",
+        default="",
+        help="Optional comma-separated domain suffixes that should bypass the proxy",
     )
     parser.add_argument(
         "--pretty",
@@ -236,6 +270,7 @@ def main() -> None:
         help="Pretty-print JSON output",
     )
     args = parser.parse_args()
+    apply_mode_defaults(args)
     validate_args(args)
 
     config = build_config(args)

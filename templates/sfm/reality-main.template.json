@@ -23,32 +23,6 @@
     ],
     "rules": [
       {
-        "domain_suffix": [
-          "ru",
-          "su",
-          "xn--p1ai"
-        ],
-        "action": "route",
-        "server": "dns-local",
-        "strategy": "ipv4_only"
-      },
-      {
-        "domain": [
-          "ya.ru",
-          "yandex.ru",
-          "dzen.ru",
-          "vk.com",
-          "mail.ru",
-          "gosuslugi.ru",
-          "ozon.ru",
-          "wildberries.ru",
-          "avito.ru"
-        ],
-        "action": "route",
-        "server": "dns-local",
-        "strategy": "ipv4_only"
-      },
-      {
         "action": "route",
         "server": "doh-remote",
         "strategy": "ipv4_only"
@@ -122,28 +96,6 @@
       },
       {
         "ip_is_private": true,
-        "outbound": "direct"
-      },
-      {
-        "domain_suffix": [
-          "ru",
-          "su",
-          "xn--p1ai"
-        ],
-        "outbound": "direct"
-      },
-      {
-        "domain": [
-          "ya.ru",
-          "yandex.ru",
-          "dzen.ru",
-          "vk.com",
-          "mail.ru",
-          "gosuslugi.ru",
-          "ozon.ru",
-          "wildberries.ru",
-          "avito.ru"
-        ],
         "outbound": "direct"
       }
     ]

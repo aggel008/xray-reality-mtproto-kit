@@ -62,9 +62,11 @@ If you want the safer default and do not want to think much about resizing later
 - `2053`
 - `2083`
 - `2087`
-- `2096`
-- `29750`
 - `8443`
+
+Open `2096` only if you explicitly use the `x-ui` sub server.
+
+Do not publish the `x-ui` admin panel port by default. Keep it behind SSH tunneling, a VPN, or a strict source IP allowlist.
 
 ### NaiveProxy VPS or Public IP
 
@@ -85,6 +87,8 @@ If you want the safer default and do not want to think much about resizing later
 ## x-ui Notes
 
 - the panel can run directly by IP
+- keep the admin surface operator-only
+- prefer SSH tunneling or source IP restrictions over a public admin port
 - if using IP certificates, Let's Encrypt may require a short-lived certificate profile
 - keep the panel path non-default
 
@@ -106,6 +110,8 @@ If you want the safer default and do not want to think much about resizing later
 ## Client Configs
 
 Use `scripts/generate_singbox_config.py` to build a reusable `Sing-box / SFM` profile.
+
+The generator defaults to full tunnel. Split-tunnel bypass rules are opt-in.
 
 Reality example:
 
@@ -146,8 +152,8 @@ Correct name:
 Use this when you want:
 
 - a local JSON config
-- split tunneling
-- direct rules for selected domains
+- full tunnel by default
+- optional direct rules for selected domains
 - full `sing-box` control
 
 Input format:
@@ -172,7 +178,7 @@ What that JSON should usually contain:
 Typical operator intent:
 
 - `tun` inbound for system traffic
-- direct routing for selected domains
+- direct routing for selected domains only when explicitly needed
 - proxy routing for everything else
 - `vless` outbound with `Reality`
 - `naive` outbound for the backup path
@@ -219,3 +225,4 @@ Where to paste:
 - give `SFM` a proper `sing-box` config with real routing and DNS sections
 - give `Hiddify Next`, `v2rayN`, and `v2rayNG` the `vless://` link
 - describe `NaiveProxy` as a separate backup stack in your runbooks
+- keep split-tunnel bypass rules opt-in instead of the repo default

@@ -10,6 +10,11 @@ One or more VPS instances run the access stack and expose the public ports.
 
 `x-ui` is the operator panel. It manages `Xray`, stores inbound definitions, and gives the operator a simple surface for creating or changing clients.
 
+Treat it as an operator-only surface:
+
+- keep it behind SSH tunneling, a private VPN, or a strict source IP allowlist
+- do not publish the admin port to the open internet by default
+
 Typical files:
 
 - `/etc/x-ui/x-ui.db`
@@ -43,6 +48,8 @@ This is stronger diversification than "just add another `Reality` port" because 
 ### Sing-box / SFM
 
 End users consume the server with local JSON configs, usually on macOS or iPhone-compatible clients that can import `sing-box` style configs.
+
+The templates in this repo default to full tunnel. Split-tunnel bypass rules are an explicit operator choice.
 
 ## Typical Flow
 

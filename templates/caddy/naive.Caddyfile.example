@@ -7,6 +7,7 @@
 
   forward_proxy {
     basic_auth YOUR_NAIVE_USERNAME YOUR_NAIVE_PASSWORD
+    ports 80 443
     hide_ip
     hide_via
     probe_resistance

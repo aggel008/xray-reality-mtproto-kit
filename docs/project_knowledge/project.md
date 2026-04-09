@@ -2,7 +2,7 @@
 
 ## What This Project Is
 
-`xray-reality-mtproto-kit` is a small deployment kit for running a private access stack on one or more VPS instances.
+`xray-reality-naive-mtproto-kit` is a small deployment kit for running a private access stack on one or more VPS instances.
 
 It combines:
 
@@ -22,7 +22,7 @@ It combines:
 ## Main Deliverables
 
 - reusable deploy docs
-- client config templates for `Reality` and `Naive`
+- full-tunnel client config templates for `Reality` and `Naive`
 - small config generation tooling
 - example `Caddy` configuration for `NaiveProxy`
 - operational patterns that are easy to hand off to another agent
